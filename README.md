@@ -1,11 +1,13 @@
 # dotfiles
 ![meme](https://i.imgflip.com/6zg56m.jpg)
-# What
+## Dependencies 
+- Python 3.11
+
+## About
 The dotfiles application is designed to manage system configuration.
 The CLI provides symlink management, while the repository houses configuration data, in the form of dotfiles.
 Much of your software depends on configuration for behavior, and if your machine changes (say, you upgrade the laptop) then __.dotfiles__ can help retain the preferences, settings, and configuration variables from the previous machines.
 
-## How
 Programs often create these config files (hereafter "dotfiles") when installed, or -- perhaps -- you created them when setting up a program. In order to consolidate dotfiles for migration and general management, yet make them available to the program in question, it is sometimes necessary to tell the program where they now live. It may instead be necessary to place a link from where the program _expects_ the dotfile to be, and where it is being managed. __dotfiles__ can do both.
 
 ### The Former: ENV Variables
@@ -22,7 +24,8 @@ This feature is still in development
 #### Use
 Links is a python package, and -- as such -- may be executed from a terminal (you've got python installed, right?i OK, whew...). Simply cd into the __.dotfiles__ directory, and run:
 ```zsh
-python links save <name> <src> <target>```
+python links save <name> <src> <target>
+```
 Wow! You created a link in the home directory of your machine! If you hadn't a dotfile on the target path, nor a program expecting to read from the source, it won't do a whole lot, but still... 'atta boy!
 
 ## Next
