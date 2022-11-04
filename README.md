@@ -1,8 +1,6 @@
 # dotfiles
-macOS system config
-![meme](https://imgflip.com/i/6zg05)
-
-## What
+![meme](https://i.imgflip.com/6zg56m.jpg)
+# What
 The dotfiles application is designed to manage system configuration.
 The CLI provides symlink management, while the repository houses configuration data, in the form of dotfiles.
 Much of your software depends on configuration for behavior, and if your machine changes (say, you upgrade the laptop) then __.dotfiles__ can help retain the preferences, settings, and configuration variables from the previous machines.
