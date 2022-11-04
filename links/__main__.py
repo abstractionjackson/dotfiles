@@ -1,22 +1,32 @@
 import sqlite3
 import argparse
+import os
+from pathlib import Path
+
+ROOT = Path('.') # dotfiles
+HOME = Path(os.environ['HOME'])
 
 con = sqlite3.connect('links.db')
 
 with con:
     con.execute('''CREATE TABLE IF NOT EXISTS links(
-                id INTEGER PRIMARY KEY,
                 name VARCHAR UNIQUE,
-                source VARCHAR,
+                source VARCHAR UNIQUE,
                 target, VARCHAR);''')
+
+def add_link(src, target):
+    os.symlink(ROOT/src, HOME/target)
 
 def save(args):
     stmt = '''
     INSERT INTO links(name, source, target)
-    VALUES (:name, :source, :target);
+    VALUES (:name, :source, :target)
+    RETURNING source, target;
     '''
     with con:
-       con.execute(stmt, args)
+       res = con.execute(stmt, args)
+       source, target = res.fetchone()
+       add_link(source, target)
 
 def ls(args):
     stmt = '''
@@ -38,25 +48,26 @@ def update(args):
 def rm(args):
     stmt = '''
     DELETE FROM links
-    WHERE name = :name;'''
+    WHERE name = :name
+    RETURNING target;'''
     with con:
-        con.execute(stmt, args)
+        res = con.execute(stmt, args)
+        source, = res.fetchone()
+        os.unlink(HOME/source)
 
-def generate(args):
+def sync():
     stmt = '''
     SELECT name, source, target FROM links;'''
-    links = []
     with con:
         res = con.execute(stmt)
-        links.extend(res.fetchall())
-    # use the os module to create each target from source
-    for _id, name, source, target in links:
-        pass
+        for name, src, target in res.fetchall():
+            add_link(src, target)
 
 parser = argparse.ArgumentParser(
     prog = 'Links Management System',
-    description = 'Perform CRUD operations on links (hard) for the .dotfiles utility'
+    description = 'Perform CRUD operations on symlinks for the .dotfiles utility'
     )
+parser.add_argument('-s', '--sync', help='Create links in the root', action='store_true')
 op_parsers = parser.add_subparsers(title='operation', help='The action to perform.')
 save_parser = op_parsers.add_parser('save', help='add a link to the system')
 save_parser.add_argument('name', help='relative to the system')
@@ -73,5 +84,9 @@ update_parser.set_defaults(func=update)
 rm_parser = op_parsers.add_parser('rm', help='remove a link')
 rm_parser.add_argument('name', help='The unique string identifier')
 rm_parser.set_defaults(func=rm)
+
 args = parser.parse_args()
-args.func(vars(args))
+if args.sync:
+    sync()
+else:
+    args.func(vars(args))
